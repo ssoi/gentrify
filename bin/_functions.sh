@@ -26,7 +26,10 @@ create_csv() {
       SKIP="+5"
     fi
     CNT=1
-    in2csv $XLS | tail -n $SKIP >> $FILE
+    in2csv $XLS | \
+      tail -n $SKIP | \
+      sed -e 's/\ \{2,\}//g' \
+          -e 's/,\ ,/,,/g' >> $FILE
   done
 }
 
