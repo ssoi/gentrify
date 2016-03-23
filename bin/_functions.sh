@@ -16,20 +16,25 @@ create_csv() {
   FILE=$2
   XLSFILES=`find $DIR -name '*.xls'`
   
-  CNT=0  
+  PRINTHEADER=1
   for XLS in $XLSFILES
   do
-    if [[ $CNT = 0 ]]
-    then
-      SKIP="+4"
-    else
-      SKIP="+5"
-    fi
-    CNT=1
-    in2csv $XLS | \
-      tail -n $SKIP | \
-      sed -e 's/\ \{2,\}//g' \
-          -e 's/,\ ,/,,/g' >> $FILE
+    in2csv $XLS | awk -v print_header=$PRINTHEADER 'BEGIN {
+       is_header = 0
+     }
+     {
+       if (is_header == 1) {
+         gsub(/\ *,/, ",", $0);
+         print($0);
+       } else {
+         if ($0 !~ /[a-z]/ && $0 !~ /[0-9]/) {
+           if (print_header == 1)
+             print($0);
+           is_header = 1;
+         }
+       }
+     }' >> $FILE
+    PRINTHEADER=0
   done
 }
 
