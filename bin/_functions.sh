@@ -21,9 +21,9 @@ create_csv() {
   do
     if [[ $CNT = 0 ]]
     then
-      SKIP="+5"
+      SKIP="+4"
     else
-      SKIP="+6"
+      SKIP="+5"
     fi
     CNT=1
     in2csv $XLS | tail -n $SKIP >> $FILE
