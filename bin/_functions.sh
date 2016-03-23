@@ -44,10 +44,10 @@ create_table() {
   DBNAME=$3
   TABLE=$4
 
-  SCRIPT=`mktemp -t tmp`
+  SCRIPT=`mktemp 2> /dev/null || mktemp -t tmp`
 cat << SQL > $SCRIPT
 CREATE TABLE IF NOT EXISTS $TABLE (
-  borough INTEGER,
+  borough TEXT,
   neighborhood TEXT,
   building_class_category TEXT,
   tax_class_present TEXT,
@@ -57,17 +57,16 @@ CREATE TABLE IF NOT EXISTS $TABLE (
   building_class_present TEXT,
   address TEXT,
   zip_code TEXT,
-  residential_units INTEGER,
-  commercial_units INTEGER,
-  total units INTEGER,
-  land_square_feet INTEGER,
-  gross_square_feet INTEGER,
+  residential_units REAL,
+  commercial_units REAL,
+  total_units REAL,
+  land_square_feet REAL,
+  gross_square_feet REAL,
   year_built TEXT,
   tax_class_sale TEXT,
   building_class_sale TEXT,
-  sale_price INTEGER,
-  sale_date TEXT,
-  key_id SERIAL PRIMARY KEY);
+  sale_price REAL,
+  sale_date TEXT);
 SQL
 
   psql --user=$USER --host=$HOST --dbname=$DBNAME --file=$SCRIPT
@@ -78,11 +77,11 @@ load_data() {
   USER=$1
   HOST=$2
   TABLE=$3
-  FILE=$4
-  
-  SCRIPT=`mktemp -t gentrify`
+  DBNAME=$4
+  FILE=$5
+  SCRIPT=`mktemp --tmpdir="." 2> /dev/null || mktemp -t tmp`
 cat << SQL > $SCRIPT
-COPY $TABLE FROM '$FILE' DELIMITERS ',' CSV HEADER;
+\copy $TABLE FROM '$FILE' DELIMITERS ',' CSV HEADER;
 SQL
 
   psql --user=$USER --host=$HOST --dbname=$DBNAME --file=$SCRIPT
